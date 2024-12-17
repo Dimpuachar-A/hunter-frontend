@@ -1,0 +1,40 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hunter-frontend-app-deployment
+  namespace: wiztap
+  labels:
+    app.kubernetes.io/name: hunter-frontend-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hunter-frontend-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hunter-frontend-app
+    spec:
+      containers:
+      - name: hunter-frontend-app
+        image: 337909754862.dkr.ecr.ap-south-1.amazonaws.com/dynamos-frontend:latest
+        imagePullPolicy: Always
+        ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: wiztap
+  name: hunter-frontend-app-service
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: hunter-frontend-app
