@@ -1,18 +1,20 @@
-
-
 # Use official Node.js image as base
-FROM node:current-alpine as build
+FROM node:current-alpine
 
-# Set working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json  ./
+# Install necessary build tools
+RUN apk add --no-cache python3 make gcc g++
 
-# Install dependencies
-RUN npm install
+# Copy only package files first
+COPY package*.json ./
 
-# Copy the rest of the application code to the working directory
+# Clear npm cache and use ci for consistent installs
+RUN npm cache clean --force \
+    && npm install --verbose \
+    && npm install --save-dev node-gyp
+
+# Copy the rest of the application code
 COPY . .
 
 # Build the React.js application
